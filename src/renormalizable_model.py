@@ -1,5 +1,6 @@
 import igraph as ig
 import numpy as np
+from tqdm import tqdm
 
 def assign_weight(x_i, y_j, p_ij, W):
     return x_i*y_j/(p_ij*W)
@@ -33,7 +34,7 @@ def create_RM_graph(strenghts, z, weighted=False):
     return graph
 
 def generate_RM_ensemble(n, strenghts, z, weighted=False):
-    return [create_RM_graph(strenghts, z, weighted) for i in range(n)]
+    return [create_RM_graph(strenghts, z, weighted) for i in tqdm(range(n))]
 
 # Assure that sum of outcoming strenghts is the same as sum of incoming strenghts
 def make_strenghts_consistent(strenghts):
