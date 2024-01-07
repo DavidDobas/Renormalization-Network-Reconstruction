@@ -1,3 +1,9 @@
+#
+This is a project implementing network reconstruction using a renormalizable network model. The model is defined in
+
+*Garuccio, E., Lalli, M., & Garlaschelli, D.* (2023). **Multiscale network renormalization: Scale-invariance without geometry**. Phys. Rev. Res., 5, 043101.
+[![DOI:10.1103/PhysRevResearch.5.043101](https://link.aps.org/doi/10.1103/PhysRevResearch.5.043101)
+Garuccio, E., Lalli, M., & Garlaschelli, D. (2023). Multiscale network renormalization: Scale-invariance without geometry. Phys. Rev. Res., 5, 043101.
 ## Example usage
 
 First we import all necessary packages and modules.
@@ -38,3 +44,5 @@ Instances of graphs inherit all properites of igraph implementation, but also cu
 - `graph.weighted_clustering_coeff()`
 
 The properties are computed once and then stored. If needed, one can use `recompute=True`, for example `graph.degrees(mode="out", recompute=True)`
+
+Coarse-graining can be done
