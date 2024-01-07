@@ -2,9 +2,9 @@
 This is a project implementing network reconstruction using a renormalizable network model. The model is defined in
 
 *Garuccio, E., Lalli, M., & Garlaschelli, D.* (2023). **Multiscale network renormalization: Scale-invariance without geometry**. Phys. Rev. Res., 5, 043101.
-[![DOI:10.1103/PhysRevResearch.5.043101](http://img.shields.io/badge/DOI-10.1103/PhysRevResearch.5.043101-B31B1B.svg)](
-https://doi.org/10.1103/PhysRevResearch.5.043101)
-Garuccio, E., Lalli, M., & Garlaschelli, D. (2023). Multiscale network renormalization: Scale-invariance without geometry. Phys. Rev. Res., 5, 043101.
+
+[![DOI:10.1103/PhysRevResearch.5.043101](http://img.shields.io/badge/DOI-10.1103/PhysRevResearch.5.043101-13294c.svg)](
+https://journals.aps.org/prresearch/abstract/10.1103/PhysRevResearch.5.043101)
 ## Example usage
 
 First we import all necessary packages and modules.
