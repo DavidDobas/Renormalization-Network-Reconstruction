@@ -1,4 +1,5 @@
-#
+# Network reconstruction using renormalizable model
+
 This is a project implementing network reconstruction using a renormalizable network model. The model is defined in
 
 *Garuccio, E., Lalli, M., & Garlaschelli, D.* (2023). **Multiscale network renormalization: Scale-invariance without geometry**. Phys. Rev. Res., 5, 043101.
