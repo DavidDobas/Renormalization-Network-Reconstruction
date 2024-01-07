@@ -1,14 +1,15 @@
 import igraph as ig
 import numpy as np
+from src import renormalizable_model
 
-def coarse_grain_strenghts(strenghts, group_sequence):
-    new_strenghts = np.zeros((len(group_sequence), 2))
+def coarse_grain_strengths(strengths, group_sequence):
+    new_strengths = np.zeros((len(group_sequence), 2))
     for i in range(len(group_sequence)):
-        new_strenghts[i] = np.sum([strenghts[j] for j in group_sequence[i]], axis=0)
-    return new_strenghts
+        new_strengths[i] = np.sum([strengths[j] for j in group_sequence[i]], axis=0)
+    return new_strengths
 
 def coarse_grain_weighted_graph(graph, group_sequence):
-    new_graph = ig.Graph(len(group_sequence), edges=[], directed=True)
+    new_graph = renormalizable_model.Graph_with_properties(len(group_sequence), edges=[], directed=True)
     edges_to_add = []
     weights_to_add = []
     for i in range(len(group_sequence)):
