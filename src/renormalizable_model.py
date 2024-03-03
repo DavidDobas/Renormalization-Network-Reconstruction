@@ -83,14 +83,18 @@ def check_weighted_consistency(strengths):
     if np.sum(x_i_array) != np.sum(y_i_array):
         raise Exception("Inconsistent weights")
 
-
-def create_RM_graph(strengths, z, weighted=True, check_consistency = False):
+def initialize_graph(strengths, weighted=True, check_consistency=False):
     if weighted and check_consistency:
         check_weighted_consistency(strengths)
     if weighted:
         W = np.sum(strengths[:,0])
     n = len(strengths)
     graph = Graph_with_properties(n, edges=[], directed=True)
+    return graph, W, n
+
+
+def create_RM_graph(strengths, z, weighted=True, check_consistency = False):
+    graph, W, n = initialize_graph(strengths, weighted, check_consistency)
     edges_to_add = []
     weights_to_add = []
     random_numbers = np.random.random_sample([n,n])
@@ -108,9 +112,36 @@ def create_RM_graph(strengths, z, weighted=True, check_consistency = False):
         graph.es["weight"] = weights_to_add
     return graph
 
-def generate_RM_ensemble(n, strengths, z, weighted=True, parallel=True):
+def create_degree_corrected_RM_graph(strengths, z, weighted=True, check_consistency = False):
+    graph, W, n = initialize_graph(strengths, weighted, check_consistency)
+    edges_to_add = []
+    weights_to_add = []
+    random_numbers = np.random.random_sample([n,n])
+    edges_to_add = []
+    weights_to_add = []
+    random_numbers = np.random.random_sample([n,n])
+    for i in range(n):
+        x_i = strengths[i][0]
+        p_k_i_nonzero = 1-np.exp(-z*x_i*W)
+        for j in range(n):
+            y_j = strengths[j][1]
+            p_ij = (1 - np.exp(-z*x_i*y_j))/p_k_i_nonzero if z < np.infty else 1
+            if random_numbers[i][j] < p_ij:
+                edges_to_add.append((i,j))
+                if weighted:
+                    weights_to_add.append(assign_weight(x_i, y_j, p_ij, W))
+    graph.add_edges(edges_to_add)
+    if weighted:
+        graph.es["weight"] = weights_to_add
+    return graph
+
+def generate_RM_ensemble(n, strengths, z, weighted=True, degree_corrected = False, parallel=True):
     if parallel:
+        if degree_corrected:
+            return Parallel(n_jobs=cpu_count())(delayed(create_degree_corrected_RM_graph)(strengths, z, weighted) for i in tqdm(range(n)))
         return Parallel(n_jobs=cpu_count())(delayed(create_RM_graph)(strengths, z, weighted) for i in tqdm(range(n)))
+    if degree_corrected:
+        return [create_degree_corrected_RM_graph(strengths, z, weighted) for i in tqdm(range(n))]
     return [create_RM_graph(strengths, z, weighted) for i in tqdm(range(n))]
 
 # Assure that sum of outcoming strengths is the same as sum of incoming strengths
