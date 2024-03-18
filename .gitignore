@@ -1,4 +1,5 @@
 __pycache__/
 generate_big_ensemble.py
 img/
+data/
 ensembles.pkl

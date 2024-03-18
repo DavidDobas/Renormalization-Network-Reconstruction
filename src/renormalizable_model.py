@@ -92,21 +92,39 @@ def initialize_graph(strengths, weighted=True, check_consistency=False):
     graph = Graph_with_properties(n, edges=[], directed=True)
     return graph, W, n
 
+def convert_strengths_without_self_loops(strengths):
+    out_strengths = strengths[:,0]
+    in_strengths = strengths[:,1]
+    S = np.sum(out_strengths)
+    new_out_strengths = np.zeros(len(out_strengths))
+    new_in_strengths = np.zeros(len(in_strengths))
+    for i in range(len(out_strengths)):
+        w_ii = out_strengths[i]*in_strengths[i]/S
+        new_out_strengths[i] = out_strengths[i] + w_ii
+        new_in_strengths[i] = in_strengths[i] + w_ii
+    return np.stack([new_out_strengths, new_in_strengths], axis=1)    
 
-def create_RM_graph(strengths, z, weighted=True, check_consistency = False):
-    graph, W, n = initialize_graph(strengths, weighted, check_consistency)
+def create_RM_graph(strengths, z, weighted=True, check_consistency = False, self_loops = True):
+    if not self_loops:
+        new_strengths = convert_strengths_without_self_loops(strengths)
+    else:
+        new_strengths = strengths
+    graph, W, n = initialize_graph(new_strengths, weighted, check_consistency)
     edges_to_add = []
     weights_to_add = []
     random_numbers = np.random.random_sample([n,n])
     for i in range(n):
         for j in range(n):
-            x_i = strengths[i][0]
-            y_j = strengths[j][1]
-            p_ij = 1 - np.exp(-z*x_i*y_j) if z < np.infty else 1
-            if random_numbers[i][j] < p_ij:
-                edges_to_add.append((i,j))
-                if weighted:
-                    weights_to_add.append(assign_weight(x_i, y_j, p_ij, W))
+            if not self_loops and i==j:
+                continue
+            else:
+                x_i = new_strengths[i][0]
+                y_j = new_strengths[j][1]
+                p_ij = 1 - np.exp(-z*x_i*y_j) if z < np.infty else 1
+                if random_numbers[i][j] < p_ij:
+                    edges_to_add.append((i,j))
+                    if weighted:
+                        weights_to_add.append(assign_weight(x_i, y_j, p_ij, W))
     graph.add_edges(edges_to_add)
     if weighted:
         graph.es["weight"] = weights_to_add
@@ -135,14 +153,14 @@ def create_degree_corrected_RM_graph(strengths, z, weighted=True, check_consiste
         graph.es["weight"] = weights_to_add
     return graph
 
-def generate_RM_ensemble(n, strengths, z, weighted=True, degree_corrected = False, parallel=True):
+def generate_RM_ensemble(n, strengths, z, weighted=True, degree_corrected = False, parallel=True, self_loops = True):
     if parallel:
         if degree_corrected:
-            return Parallel(n_jobs=cpu_count())(delayed(create_degree_corrected_RM_graph)(strengths, z, weighted) for i in tqdm(range(n)))
-        return Parallel(n_jobs=cpu_count())(delayed(create_RM_graph)(strengths, z, weighted) for i in tqdm(range(n)))
+            return Parallel(n_jobs=cpu_count())(delayed(create_degree_corrected_RM_graph)(strengths, z, weighted) for _ in tqdm(range(n)))
+        return Parallel(n_jobs=cpu_count())(delayed(create_RM_graph)(strengths, z, weighted=weighted, self_loops=self_loops) for _ in tqdm(range(n)))
     if degree_corrected:
-        return [create_degree_corrected_RM_graph(strengths, z, weighted) for i in tqdm(range(n))]
-    return [create_RM_graph(strengths, z, weighted) for i in tqdm(range(n))]
+        return [create_degree_corrected_RM_graph(strengths, z, weighted) for _ in tqdm(range(n))]
+    return [create_RM_graph(strengths, z, weighted=weighted, self_loops=self_loops) for _ in tqdm(range(n))]
 
 # Assure that sum of outcoming strengths is the same as sum of incoming strengths
 def make_strengths_consistent(strengths):
