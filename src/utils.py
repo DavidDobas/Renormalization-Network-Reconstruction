@@ -1,12 +1,17 @@
 import numpy as np
 from src import renormalizable_model
 import scipy
+import igraph as ig
 
 def weighted_adj_matrix(graph):
     return np.array(graph.get_adjacency(attribute='weight').data)
 
 def adj_matrix(graph):
     return np.array(graph.get_adjacency().data)
+
+def graph_from_adjacency(adj_matrix, weighted=True):
+    if weighted: return ig.Graph.Weighted_Adjacency(adj_matrix)
+    return ig.Graph.Adjacency(adj_matrix)
 
 def _exp_num_of_links(z, strengths, num_of_links, self_loops=True):
     if self_loops:
